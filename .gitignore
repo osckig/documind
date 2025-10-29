@@ -1,0 +1,75 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+dist/
+.svelte-kit/
+build/
+.vercel/
+
+# Environment
+.env
+.env.local
+.env.*.local
+*.env
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Data
+data/embeddings/*
+!data/embeddings/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/uploads/*
+!data/uploads/.gitkeep
+
+# Models
+models/trained_models/*
+!models/trained_models/.gitkeep
+
+# Logs
+logs/
+*.log
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Documentation builds
+documentation/build/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Windows reserved names
+NUL
+nul

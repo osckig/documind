@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # Weaviate Vector Database
+  weaviate:
+    image: semitechnologies/weaviate:1.23.0
+    ports:
+      - "8080:8080"
+    environment:
+      QUERY_DEFAULTS_LIMIT: 25
+      AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED: 'true'
+      PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
+      DEFAULT_VECTORIZER_MODULE: 'none'
+      ENABLE_MODULES: 'text2vec-transformers,generative-openai'
+      CLUSTER_HOSTNAME: 'node1'
+    volumes:
+      - weaviate_data:/var/lib/weaviate
+    restart: unless-stopped
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: sme_user
+      POSTGRES_PASSWORD: sme_password
+      POSTGRES_DB: sme_docs
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  # Backend API
+  backend:
+    build:
+      context: ./src/backend
+      dockerfile: ../../deployment/docker/Dockerfile.backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://sme_user:sme_password@postgres:5432/sme_docs
+      - WEAVIATE_URL=http://weaviate:8080
+      - REDIS_URL=redis://redis:6379
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - ./src/backend:/app
+      - ./data:/data
+      - ./models:/models
+    depends_on:
+      - postgres
+      - weaviate
+      - redis
+    restart: unless-stopped
+
+  # Frontend
+  frontend:
+    build:
+      context: ./src/frontend
+      dockerfile: ../../deployment/docker/Dockerfile.frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    volumes:
+      - ./src/frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  weaviate_data:
+  postgres_data:
+  redis_data:

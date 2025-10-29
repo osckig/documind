@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocuMind - Intelligent Document Assistant</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+</head>
+<body>
+    <div class="app">
+        <!-- Top Navigation Bar -->
+        <header class="top-nav">
+            <div class="brand">
+                <svg class="brand-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                    <line x1="12" y1="18" x2="12" y2="12"></line>
+                    <line x1="9" y1="15" x2="15" y2="15"></line>
+                </svg>
+                <span class="brand-name">DocuMind</span>
+            </div>
+            <nav class="nav-tabs">
+                <button class="tab-btn active" data-view="chat">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
+                    Query Assistant
+                </button>
+                <button class="tab-btn" data-view="data">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
+                        <polyline points="13 2 13 9 20 9"></polyline>
+                    </svg>
+                    Knowledge Base
+                </button>
+                <button class="tab-btn" data-view="upload">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    Upload Files
+                </button>
+            </nav>
+            <div class="stats-badge">
+                <div class="badge-item">
+                    <span class="badge-label">Docs</span>
+                    <span class="badge-value" id="topDocCount">0</span>
+                </div>
+                <div class="badge-item">
+                    <span class="badge-label">Segments</span>
+                    <span class="badge-value" id="topChunkCount">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="content-wrapper">
+            <!-- Chat View -->
+            <div id="chatView" class="view-panel active">
+                <div class="panel-header">
+                    <h2>Document Query Assistant</h2>
+                    <p class="panel-subtitle">Ask questions and receive context-aware answers from your uploaded documents</p>
+                </div>
+
+                <div class="messages-container" id="chatContainer">
+                    <div class="intro-card">
+                        <div class="intro-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                            </svg>
+                        </div>
+                        <h3>DocuMind Query System</h3>
+                        <p>This intelligent assistant uses advanced retrieval methods to find and present relevant information from your document collection.</p>
+                        <div class="quick-tips">
+                            <span class="tip">Try: "Summarize the key points"</span>
+                            <span class="tip">Try: "What does the document say about..."</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Query Input Box -->
+                <div class="input-container">
+                    <textarea id="chatInput" placeholder="Type your question here..." rows="2"></textarea>
+                    <button id="sendButton" class="send-btn" disabled>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Data View -->
+            <div id="dataView" class="view-panel">
+                <div class="panel-header">
+                    <h2>Knowledge Base Repository</h2>
+                    <p class="panel-subtitle">Browse through all indexed document segments</p>
+                </div>
+
+                <!-- Document Cards -->
+                <div class="documents" id="documentCards"></div>
+
+                <!-- Pagination -->
+                <div class="pagination" id="pagination" style="display: none;">
+                    <button id="prevPage">‹</button>
+                    <span id="pageInfo">1 / 1</span>
+                    <button id="nextPage">›</button>
+                </div>
+            </div>
+
+            <!-- Upload View -->
+            <div id="uploadView" class="view-panel">
+                <div class="panel-header">
+                    <h2>Document Upload Center</h2>
+                    <p class="panel-subtitle">Import documents to build your searchable knowledge base</p>
+                </div>
+
+                <div class="upload-wrapper">
+                    <div class="dropzone" id="uploadArea">
+                        <div class="dropzone-content">
+                            <svg class="upload-icon" width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            <h3>Drag files here or click to browse</h3>
+                            <p class="supported-formats">Supported: PDF, TXT, Markdown (.md)</p>
+                            <input type="file" id="fileInput" multiple accept=".pdf,.txt,.md" hidden>
+                        </div>
+                    </div>
+
+                    <div class="files-list" id="uploadedFiles"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
