@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Intelligence Dashboard - DocuMind</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.5rem;
+            color: #7c3aed;
+            margin-bottom: 10px;
+        }
+
+        .dashboard-header p {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        .nav-links {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .nav-links a {
+            margin: 0 15px;
+            color: #7c3aed;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        .insight-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .insight-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #7c3aed;
+        }
+
+        .insight-card.warning {
+            border-left-color: #f59e0b;
+        }
+
+        .insight-card.danger {
+            border-left-color: #ef4444;
+        }
+
+        .insight-card.success {
+            border-left-color: #10b981;
+        }
+
+        .insight-card h3 {
+            font-size: 1.1rem;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .insight-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #7c3aed;
+            margin: 12px 0;
+        }
+
+        .insight-card .message {
+            color: #6b7280;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-container h2 {
+            font-size: 1.4rem;
+            color: #374151;
+            margin-bottom: 20px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+        }
+
+        .data-table {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .data-table h2 {
+            font-size: 1.4rem;
+            color: #374151;
+            margin-bottom: 20px;
+        }
+
+        .data-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .data-table th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .data-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .cluster-item {
+            background: #f3f4f6;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .cluster-item h4 {
+            color: #7c3aed;
+            margin-bottom: 8px;
+        }
+
+        .cluster-item .keywords {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .keyword-tag {
+            background: #7c3aed;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>📊 Business Intelligence Dashboard</h1>
+            <p>Actionable insights from your business documents</p>
+        </div>
+
+        <div class="nav-links">
+            <a href="index.html">← Back to Main App</a>
+            <a href="#" onclick="refreshDashboard()">🔄 Refresh Data</a>
+        </div>
+
+        <div id="loading" class="loading">
+            <p>Loading dashboard data...</p>
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div id="dashboardContent" style="display: none;">
+            <!-- Insight Cards -->
+            <div class="insight-cards" id="insightCards"></div>
+
+            <!-- Charts -->
+            <div class="chart-grid">
+                <div class="chart-container">
+                    <h2>📈 Upload Trends (30 Days)</h2>
+                    <div class="chart-wrapper">
+                        <canvas id="uploadTrendsChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h2>📁 Document Types Distribution</h2>
+                    <div class="chart-wrapper">
+                        <canvas id="documentTypesChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h2>💰 Financial Overview</h2>
+                    <div class="chart-wrapper">
+                        <canvas id="financialChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h2>😊 Customer Sentiment</h2>
+                    <div class="chart-wrapper">
+                        <canvas id="sentimentChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document Clusters -->
+            <div class="data-table">
+                <h2>🗂️ Document Clusters (Similar Documents Grouped)</h2>
+                <div id="clustersList"></div>
+            </div>
+
+            <!-- Recurring Issues Table -->
+            <div class="data-table">
+                <h2>⚠️ Recurring Issues</h2>
+                <table id="issuesTable">
+                    <thead>
+                        <tr>
+                            <th>Issue</th>
+                            <th>Occurrences</th>
+                            <th>Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody id="issuesTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- Popular Queries -->
+            <div class="data-table">
+                <h2>🔍 Most Popular Queries</h2>
+                <table id="queriesTable">
+                    <thead>
+                        <tr>
+                            <th>Query</th>
+                            <th>Times Asked</th>
+                            <th>Last Asked</th>
+                        </tr>
+                    </thead>
+                    <tbody id="queriesTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin + '/api';
+
+        // Chart instances
+        let uploadTrendsChart;
+        let documentTypesChart;
+        let financialChart;
+        let sentimentChart;
+
+        async function loadDashboard() {
+            try {
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('dashboardContent').style.display = 'none';
+                document.getElementById('error').style.display = 'none';
+
+                // Load all data in parallel
+                const [
+                    businessInsights,
+                    uploadTrends,
+                    documentTypes,
+                    financial,
+                    customerInsights,
+                    issues,
+                    clusters,
+                    popularQueries
+                ] = await Promise.all([
+                    fetch(`${API_BASE}/analytics/business-insights`).then(r => r.json()),
+                    fetch(`${API_BASE}/analytics/upload-trends?period=30`).then(r => r.json()),
+                    fetch(`${API_BASE}/analytics/document-types`).then(r => r.json()),
+                    fetch(`${API_BASE}/analytics/financial`).then(r => r.json()),
+                    fetch(`${API_BASE}/analytics/customer-insights`).then(r => r.json()),
+                    fetch(`${API_BASE}/analytics/issues`).then(r => r.json()),
+                    fetch(`${API_BASE}/analytics/clusters?k=5`).then(r => r.json()),
+                    fetch(`${API_BASE}/analytics/popular-queries`).then(r => r.json())
+                ]);
+
+                // Render insight cards
+                renderInsightCards(businessInsights.insights);
+
+                // Render charts
+                renderUploadTrendsChart(uploadTrends.trends);
+                renderDocumentTypesChart(documentTypes.distribution);
+                renderFinancialChart(financial.financial);
+                renderSentimentChart(customerInsights.customerInsights);
+
+                // Render tables
+                renderClusters(clusters.clusters);
+                renderIssuesTable(issues.issues);
+                renderPopularQueries(popularQueries.queries);
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('dashboardContent').style.display = 'block';
+
+            } catch (error) {
+                console.error('Dashboard error:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').textContent = 'Failed to load dashboard data: ' + error.message;
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+
+        function renderInsightCards(insights) {
+            const container = document.getElementById('insightCards');
+            container.innerHTML = '';
+
+            if (!insights || !insights.insights || insights.insights.length === 0) {
+                container.innerHTML = '<p>No insights available yet. Upload more documents to generate insights.</p>';
+                return;
+            }
+
+            insights.insights.forEach(insight => {
+                const card = document.createElement('div');
+                card.className = `insight-card ${insight.trend}`;
+                card.innerHTML = `
+                    <h3>${insight.title}</h3>
+                    <div class="value">${formatValue(insight.value, insight.type)}</div>
+                    <div class="message">${insight.message}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function formatValue(value, type) {
+            if (type === 'financial') {
+                return 'KSH ' + value.toLocaleString();
+            }
+            return value.toLocaleString();
+        }
+
+        function renderUploadTrendsChart(trends) {
+            const ctx = document.getElementById('uploadTrendsChart');
+
+            if (uploadTrendsChart) uploadTrendsChart.destroy();
+
+            const labels = trends.timeline.map(t => t.date);
+            const data = trends.timeline.map(t => t.count);
+
+            uploadTrendsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Documents Uploaded',
+                        data: data,
+                        borderColor: '#7c3aed',
+                        backgroundColor: 'rgba(124, 58, 237, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: trends.summary
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderDocumentTypesChart(distribution) {
+            const ctx = document.getElementById('documentTypesChart');
+
+            if (documentTypesChart) documentTypesChart.destroy();
+
+            const labels = distribution.map(d => d.type.charAt(0).toUpperCase() + d.type.slice(1));
+            const data = distribution.map(d => d.count);
+            const colors = [
+                '#7c3aed', '#ec4899', '#f59e0b', '#10b981', '#3b82f6',
+                '#8b5cf6', '#ef4444', '#14b8a6', '#f97316'
+            ];
+
+            documentTypesChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors.slice(0, distribution.length)
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderFinancialChart(financial) {
+            const ctx = document.getElementById('financialChart');
+
+            if (financialChart) financialChart.destroy();
+
+            financialChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Total Revenue', 'Avg Transaction', 'Transaction Count'],
+                    datasets: [{
+                        label: 'Financial Metrics',
+                        data: [
+                            financial.totalRevenue,
+                            financial.avgTransaction,
+                            financial.transactionCount * 1000 // Scale for visibility
+                        ],
+                        backgroundColor: ['#7c3aed', '#ec4899', '#f59e0b']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderSentimentChart(customer) {
+            const ctx = document.getElementById('sentimentChart');
+
+            if (sentimentChart) sentimentChart.destroy();
+
+            sentimentChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Positive Signals', 'Negative Signals'],
+                    datasets: [{
+                        label: 'Customer Sentiment',
+                        data: [customer.positiveSignals, customer.negativeSignals],
+                        backgroundColor: ['#10b981', '#ef4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: `Overall Sentiment: ${customer.sentiment.toUpperCase()}`
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderClusters(clusters) {
+            const container = document.getElementById('clustersList');
+
+            if (!clusters || clusters.length === 0) {
+                container.innerHTML = '<p>Not enough documents for clustering. Upload at least 5 documents.</p>';
+                return;
+            }
+
+            container.innerHTML = clusters.map(cluster => `
+                <div class="cluster-item">
+                    <h4>Cluster ${cluster.id + 1}: ${cluster.label}</h4>
+                    <p><strong>${cluster.size}</strong> documents | Similarity: <strong>${(cluster.averageSimilarity * 100).toFixed(1)}%</strong></p>
+                    <div class="keywords">
+                        ${cluster.keywords.slice(0, 5).map(kw =>
+                            `<span class="keyword-tag">${kw.word}</span>`
+                        ).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderIssuesTable(issues) {
+            const tbody = document.getElementById('issuesTableBody');
+
+            if (!issues.topIssues || issues.topIssues.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3">No recurring issues detected</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = issues.topIssues.map(issue => `
+                <tr>
+                    <td>${issue.issue}</td>
+                    <td>${issue.occurrences}</td>
+                    <td>${issue.percentage}%</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderPopularQueries(queries) {
+            const tbody = document.getElementById('queriesTableBody');
+
+            if (!queries || queries.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3">No queries yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = queries.map(q => `
+                <tr>
+                    <td>${q.query}</td>
+                    <td>${q.hits}</td>
+                    <td>${new Date(q.lastAccessed).toLocaleDateString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        function refreshDashboard() {
+            loadDashboard();
+        }
+
+        // Load dashboard on page load
+        loadDashboard();
+    </script>
+</body>
+</html>

@@ -2,6 +2,103 @@
 
 All notable changes to DocuMind will be documented in this file.
 
+## [2.1.0] - 2025-10-31
+
+### 🎓 Academic Features Release - Full Project Alignment
+
+This release completes all academic project objectives for **BSSEC01/1577/2022**: "AI-powered Document Search and Analysis Platform for SMEs in Kenya"
+
+### Added
+
+#### 📊 Document Clustering (Objective 2 - Pattern Recognition)
+- K-means clustering algorithm for grouping similar documents
+- Hierarchical clustering as alternative method
+- Automatic cluster labeling based on content
+- Keyword extraction for each cluster
+- Similar document detection API
+- New routes: `/api/analytics/clusters`, `/api/analytics/similar/:id`
+
+#### 📈 Trend Detection & Time-Series Analysis (Objective 2 - Trend Detection)
+- Upload trend analysis with linear regression
+- Anomaly detection (spikes/drops) using Z-scores
+- Weekly pattern recognition (busiest days)
+- Seasonal pattern detection (peak months)
+- Content trend analysis (topic evolution)
+- Query trend analysis (trending questions)
+- Growth rate calculation
+- New routes: `/api/analytics/upload-trends`, `/api/analytics/content-trends`, `/api/analytics/query-trends`, `/api/analytics/seasonal`
+
+#### 💼 SME Business Intelligence (Objective 3 - Decision Support)
+- Automatic document type detection (invoice, receipt, contract, report, feedback, sales)
+- Financial data extraction (revenue, transactions, currencies - KSH support)
+- Customer sentiment analysis (positive/negative/neutral)
+- Recurring issue detection (common complaints/problems)
+- Revenue tracking from business documents
+- Transaction analysis (average, count, breakdown)
+- New routes: `/api/analytics/business-insights`, `/api/analytics/financial`, `/api/analytics/customer-insights`, `/api/analytics/issues`, `/api/analytics/document-types`
+
+#### 📊 Visual Decision-Support Dashboard (Objective 3)
+- **New dashboard page**: `dashboard.html`
+- **Interactive charts** (Chart.js):
+  - Upload trends line chart
+  - Document type distribution (doughnut)
+  - Financial overview (bar chart)
+  - Customer sentiment visualization
+- **Insight cards** with actionable metrics:
+  - Revenue tracking
+  - Recurring issue alerts
+  - Customer sentiment
+  - Growth indicators
+- **Data tables** for:
+  - Document clusters with keywords
+  - Recurring issues with frequencies
+  - Popular queries
+- **Real-time data loading**
+- **Mobile responsive design**
+- **Navigation link** in main app
+
+#### 🔧 New Utilities & Infrastructure
+- `utils/clustering.js` - 380 lines (K-means, hierarchical clustering)
+- `utils/trendAnalysis.js` - 380 lines (time-series, regression, anomaly detection)
+- `utils/businessIntelligence.js` - 480 lines (SME-specific analytics)
+- `routes/analytics.js` - 280 lines (11 new analytics endpoints)
+- `ACADEMIC_FEATURES.md` - Complete academic documentation
+
+### Academic Project Completion
+
+| Objective | Requirement | Implementation | Status |
+|-----------|-------------|----------------|--------|
+| **1. Semantic Search** | Meaning-based retrieval | Hybrid vector+keyword search | ✅ 100% (v2.0) |
+| **2. Trend Detection** | Pattern recognition | Time-series + regression + anomaly detection | ✅ 100% (v2.1) |
+| **2. Clustering** | Document grouping | K-means + hierarchical clustering | ✅ 100% (v2.1) |
+| **3. Dashboard** | Visual insights | Charts + tables + insight cards | ✅ 100% (v2.1) |
+| **3. Decision Support** | Actionable insights | Business intelligence + alerts | ✅ 100% (v2.1) |
+| **SME Focus** | Kenyan SME context | Document types + KSH + local mode | ✅ 100% |
+
+### SME Business Value
+- **Revenue Tracking**: Automatic extraction from invoices
+- **Issue Detection**: Identifies recurring customer complaints
+- **Sentiment Analysis**: Monitors customer satisfaction
+- **Growth Insights**: Tracks business document trends
+- **Cost-Effective**: Works with local/free AI providers
+- **Kenyan Context**: KSH currency support, SME document types
+
+### Files Added/Modified
+- ✅ 4 new utility modules (1,520 lines of analytics code)
+- ✅ 1 new route module (280 lines)
+- ✅ 1 dashboard UI (700 lines)
+- ✅ 1 comprehensive academic documentation
+- ✅ Updated main navigation
+- ✅ Updated server-enhanced.js
+
+### For Academic Evaluation
+- **Documentation**: See `ACADEMIC_FEATURES.md`
+- **Dashboard**: http://localhost:3002/dashboard.html
+- **API**: 11 new analytics endpoints
+- **Demo Ready**: All features functional
+
+---
+
 ## [2.0.0] - 2025-10-31
 
 ### 🎉 Major Release - DocuMind Enhanced

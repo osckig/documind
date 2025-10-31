@@ -26,6 +26,7 @@ const {
 
 // Routes
 const authRoutes = require('./routes/auth');
+const analyticsRoutes = require('./routes/analytics');
 
 // Utilities
 const {
@@ -150,6 +151,9 @@ app.get('/api/health', (req, res) => {
 
 // Auth routes
 app.use('/api/auth', authRoutes);
+
+// Analytics routes
+app.use('/api/analytics', analyticsRoutes);
 
 // Upload document
 app.post('/api/upload', optionalAuth, uploadLimiter, upload.single('file'), validateFileUpload, asyncHandler(async (req, res) => {
